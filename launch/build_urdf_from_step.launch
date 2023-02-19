@@ -1,0 +1,14 @@
+<launch>
+
+    <!-- list of arguments that can be given as inputs of the launch file -->
+    <arg name="step_file_path"   default="/input_step_files/testni.step" />
+    <arg name="urdf_package_name"   default="whatever_you_want" />
+
+    <!-- Node wraped code -->
+    <node pkg="urdf_from_step" name="urdf_creator" type="create_urdf.py" output="screen" >
+
+         <param name="step_file_path"   type="string" value="$(arg step_file_path)" />
+    
+    </node>
+
+</launch>

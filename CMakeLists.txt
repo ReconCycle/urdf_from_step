@@ -186,6 +186,17 @@ catkin_install_python(PROGRAMS
 # )
 
 ## Mark other files for installation (e.g. launch and bag files, etc.)
+
+
+
+install(
+    DIRECTORY
+     launch/
+    DESTINATION
+     ${CATKIN_PACKAGE_SHARE_DESTINATION}/launch
+    FILES_MATCHING PATTERN "*.launch"
+)
+
 # install(FILES
 #   # myfile1
 #   # myfile2

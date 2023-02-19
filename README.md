@@ -44,3 +44,14 @@ cmake \
  -DOCE_LIB_PATH=/opt/build/occt753/lib \
  -DPYTHONOCC_BUILD_TYPE=Release \
  ..
+
+
+
+
+### Citations
+
+OCC:
+
+pythonOCC
+
+Import asembly: heare and in code
