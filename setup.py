@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-from distutils.core import setup
+## ! DO NOT MANUALLY INVOKE THIS setup.py, USE CATKIN INSTEAD
 
-setup(name='Distutils',
-      version='0.0.1',
-      description='Python Distribution Utilities',
-      author='Greg Ward',
-      author_email='gward@python.net',
-      url='https://www.python.org/sigs/distutils-sig/',
-      packages=['distutils', 'distutils.command'],
-     )
+from setuptools import setup
+from catkin_pkg.python_setup import generate_distutils_setup
+
+# fetch values from package.xml
+setup_args = generate_distutils_setup(
+    packages=['import_asembly'],
+    package_dir={'': 'src'})
+
+setup(**setup_args)
