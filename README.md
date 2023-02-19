@@ -1,5 +1,5 @@
 
-sudo apt-get install ninja-build python3.9 swig
+sudo apt-get install ninja-build swig
 
 wget 'https://git.dev.opencascade.org/gitweb/?p=occt.git;a=snapshot;h=fecb042498514186bd37fa621cdcf09eb61899a3;sf=tgz' -O occt-fecb042.tar.gz
 
@@ -15,10 +15,16 @@ sudo ninja install
 
 https://github.com/tpaviot/pythonocc-core/blob/master/INSTALL.md
 
-
+###
 git clone https://github.com/tpaviot/pythonocc-core
 
 cd pythonocc-core
+###
+
+wget 'https://github.com/tpaviot/pythonocc-core/archive/refs/tags/7.7.0.tar.gz' -O 7.7.0.tar.gz
+ tar -zxvf 7.7.0.tar.gz 
+
+cd pythonocc-core-7.7.0
 
 mkdir cmake-build
 
@@ -30,7 +36,11 @@ cmake \
  -DPYTHONOCC_BUILD_TYPE=Release \
  ..
 
- wget 'https://github.com/tpaviot/pythonocc-core/archive/refs/tags/7.7.0.tar.gz' -O 7.7.0.tar.gz
- tar -zxvf 7.7.0.tar.gz 
+if doesnt work::
 
- cd pythonocc-core-7.7.0
+cmake \
+-DPython3_EXECUTABLE=/usr/bin/python3.8 \
+ -DOCE_INCLUDE_PATH=/opt/build/occt753/include/opencascade \
+ -DOCE_LIB_PATH=/opt/build/occt753/lib \
+ -DPYTHONOCC_BUILD_TYPE=Release \
+ ..
