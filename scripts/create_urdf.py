@@ -13,6 +13,9 @@ import rospy
 from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from urdf_parser_py import urdf
 
+from catkin_pkg.package_templates import create_package_files, PackageTemplate
+
+
 #Python
 import numpy as np
 import os
@@ -180,16 +183,14 @@ def separateRobotPartsFromStep(parts_data):
 
 
 
-def createSTLs(robot_parts,package_path):
+def createSTLs(robot_parts,meshes_path):
 
 
-    #CREATE STLS
-
-
+    #CREATE STLs
 
     #convert to stls
 
-    stl_output_dir = package_path + "/meshes" 
+    stl_output_dir = meshes_path #package_path + "/meshes" 
     output_files = []
     file_names = []
 
@@ -303,7 +304,7 @@ def createMaterialsAndColors(robot_parts, robot_links, meshes_paths, root_link_n
 
 
 
-def generateURDF(robot_joints,robot_links):
+def generateURDF(robot_joints,robot_links, link_meshes, root_link_name, package_name):
 
     #PREPARE TRANSFORM MATRIX
 
@@ -357,7 +358,7 @@ def generateURDF(robot_joints,robot_links):
 
     #CREATE ROBOT LINKS
     relative_mesh_path = "meshes/"
-    stl_urdf_root ="package://test_rospkg/"
+    stl_urdf_root ="package://"+package_name+"/"
 
 
     for link_name in robot_links:
@@ -407,42 +408,73 @@ def generateURDF(robot_joints,robot_links):
     return robot
 
 
+def createPackageROS(package_name,output_folder_path):
+
+    package_description = "This is automaticly created ROS package with URDF"
+
+    package_template = PackageTemplate._create_package_template(
+    package_name=package_name,
+    description=package_description,
+    licenses=["BSD"] or [],
+    maintainer_names=["urfd_from_step_package"],
+    author_names=["urfd_from_step_package"],
+    version="1.0.0",
+    catkin_deps=["rviz"])
+
+    package_path = output_folder_path + "/"+ package_name
+
+    create_package_files(target_path=package_path,
+                        package_template=package_template,
+                        rosdistro="noetic",
+                        newfiles={"launch/start.launch":"test"})#,"urdf/test.urdf":"test2"
+
+
 
 if __name__ == '__main__':
 
     rospy.init_node('URDF_creator')
     step_file_path = rospy.get_param('~step_file_path')
+    output_folder_path = rospy.get_param('~output_folder_path')
+    package_name = rospy.get_param('~urdf_package_name')
+    package_path = "/output_ros_urdf_packages/" + package_name
+    rospy.loginfo("Creating ROS package:")
+    rospy.loginfo(package_name)
+
+    createPackageROS(package_name,output_folder_path)
+
+
     rospy.loginfo("Creating URDF from STEP file:")
     rospy.loginfo(step_file_path)
+
 
     parts_data = read_step_file_asembly(step_file_path)
 
 
     robot_parts, robot_joints, robot_links, root_link_name  = separateRobotPartsFromStep(parts_data)
-    print("A")
-    for r in  robot_links:
-        print(r)
-    print("B")
 
-    package_path = "/output_ros_urdf_packages"
+    meshes_path = package_path +"/meshes"
+    if os.path.exists(meshes_path) == False:
+        os.mkdir(meshes_path)
 
-    mesh_paths = createSTLs(robot_parts, package_path)
+    mesh_paths = createSTLs(robot_parts, meshes_path)
 
     robot_parts, link_meshes = createMaterialsAndColors(robot_parts, robot_links, mesh_paths, root_link_name)
 
     step_file_path = rospy.get_param('~step_file_path')
 
-    robot = generateURDF(robot_joints,robot_links)
+    robot = generateURDF(robot_joints,robot_links, link_meshes, root_link_name, package_name)
 
     if os.path.exists(package_path +"/urdf") == False:
         os.mkdir(package_path +"/urdf")
-    urdf_path = package_path +"/urdf/part1.urdf"
+
+    urdf_path = package_path +"/urdf/"+package_name+".urdf"
 
     file_handle = open(urdf_path,"w")
     #print(robot)
 
     file_handle.write(robot.to_xml_string())
     file_handle.close()
+
 
     rospy.signal_shutdown("Finish")
     
