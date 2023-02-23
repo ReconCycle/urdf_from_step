@@ -1,4 +1,22 @@
 
+
+# urdf_from_step
+
+![alt text](./documentation/jsi-logo-1-150x150.png)
+![alt text](./documentation/reconcycle-transparent.png)
+
+## Description
+
+
+
+## Instalation
+
+### Docker
+
+link
+
+### Instalation from source
+
 sudo apt-get install ninja-build swig
 
 wget 'https://git.dev.opencascade.org/gitweb/?p=occt.git;a=snapshot;h=fecb042498514186bd37fa621cdcf09eb61899a3;sf=tgz' -O occt-fecb042.tar.gz
@@ -47,11 +65,13 @@ cmake \
 
 
 
-
-### Citations
+## Citations
 
 OCC:
 
 pythonOCC
 
 Import asembly: heare and in code
+
+
+

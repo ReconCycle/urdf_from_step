@@ -437,6 +437,7 @@ if __name__ == '__main__':
     output_folder_path = rospy.get_param('~output_folder_path')
     package_name = rospy.get_param('~urdf_package_name')
     package_path = "/output_ros_urdf_packages/" + package_name
+
     rospy.loginfo("Creating ROS package:")
     rospy.loginfo(package_name)
 
@@ -474,6 +475,10 @@ if __name__ == '__main__':
 
     file_handle.write(robot.to_xml_string())
     file_handle.close()
+
+    #COPY LAUNCH TEMPLATE
+
+    
 
 
     rospy.signal_shutdown("Finish")

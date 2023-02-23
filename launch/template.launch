@@ -1,0 +1,22 @@
+ <launch>
+
+  <arg name="tf_prefix" default="cutter"/>
+  <arg name="urdf_name" default="cutter"/>
+  <arg name="show_joint_gui" default="false"/>
+  
+  <group ns="$(arg tf_prefix)">
+    <param name="tf_prefix" value="$(arg tf_prefix)" />
+    <param name="robot_description" textfile="$(find test_rospkg)/urdf/$(arg urdf_name).urdf"/>
+    
+    <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+
+    <group if="$(arg show_joint_gui)">
+
+      <node name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+
+    </group>
+ 
+  </group>
+
+
+</launch> 
