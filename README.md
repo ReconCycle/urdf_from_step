@@ -30,6 +30,11 @@ In our development process, we used the Fusion 360 CAD program for STEP file cre
 
 Docker repository is [hier](https://github.com/ReconCycle/urdf-from-step-docker).
 
+Pull prepared docker image
+
+```bash
+docker pull ghcr.io/reconcycle/urdf-from-step:latest
+```
 
 ### Build from source
 
