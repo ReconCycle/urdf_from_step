@@ -5,6 +5,11 @@
 ![alt text](./documentation/jsi-logo-1-150x150.png)
 ![alt text](./documentation/reconcycle-transparent.png)
 
+<img src="./documentation/jsi-logo-1-150x150.png" 
+     alt="eu_flag" height="45" align="left" >  
+
+
+
 ## About
 
 This is ROS package for automated conversion of STEP models to URDF format. The program takes as input the STEP file of the desired robot or robot-like maschine and creates a new ROS package. The package created contains the URDF description, the STL mesh files required by URDF description, and the ROS launch file to load the data into the ROS control system. 
@@ -110,5 +115,4 @@ Import asembly: heare and in code
 <img src="./documentation/rosin_eu_flag.jpg" 
      alt="eu_flag" height="45" align="left" >  
 
-This project has received funding from the European Union’s Horizon 2020  
-research and innovation programme under grant agreement No. 871352. 
+This project has received funding from the European Union’s Horizon 2020 research and innovation programme under grant agreement No. 871352. 
