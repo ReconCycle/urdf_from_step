@@ -6,10 +6,10 @@
 ![alt text](./documentation/reconcycle-transparent.png)
 
 <img src="./documentation/jsi-logo-1-150x150.png" 
-     alt="jsi" height="70"  style="float: left; margin-right: 10px;" >  
+     alt="jsi" height="170"  style="float: left; margin-right: 10px;" >  
      
 <img src="./documentation/reconcycle-transparent.png" 
-     alt="reconcycle" height="70" align="right" >  
+     alt="reconcycle" height="70" style="float: left; margin-right: 10px;" >  
 
 
 ## About
