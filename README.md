@@ -111,5 +111,4 @@ Import asembly: heare and in code
      alt="eu_flag" height="45" align="left" >  
 
 This project has received funding from the European Union’s Horizon 2020  
-research and innovation programme under grant agreement no.
-
+research and innovation programme under grant agreement No. 871352. 
