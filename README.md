@@ -24,15 +24,13 @@ legacy code: [URDF CREATOR](https://github.com/ReconCycle/urdf_creator)
 The URDF file is generated in the following steps. First, the STEP file is loaded and its contents are analyzed using tools from the Open Cascade Technology (OCCT) library. The analysis looks for keywords such as "joint" and "link" in the part names or in the assembly names in the model design tree. The instances with these keywords in their names represent the corresponding "joint" and "link" building blocks of URDF. The remaining part names containing the keyword encode the connections between individual URDF elements and their names in the URDF file. Once these instances and their connections have been identified, the correct local transformation between them must be computed from the values of their base coordinate systems in the STEP file. The calculated local transformations are transformed accordingly into the coordinate system values of the "joint" and "link" URDF definitions. The instances that do not have keywords in their names represent geometric shapes. They are transformed into the STL mesh specified in the appropriate local coordinate system according to the given URDF tree structure. From the collected and computed URDF data, the XML in URDF format is created using the urdfdom parser library. Finally, everything is stored in a newly created ROS package.
 
 
-## Example
 
-In our development process, we used the Fusion 360 CAD program for STEP file creation, but any of the standard CAD programs could be used instead.
 
 
 
 ## Instalation
 
-
+Because the installation of (pythonOCC-core)(https://github.com/tpaviot/pythonocc-core) is challenging is highly recomeded to use a docker image.
 
 ### Docker
 
@@ -66,43 +64,12 @@ sudo ninja install
 
 https://github.com/tpaviot/pythonocc-core/blob/master/INSTALL.md
 ```
-###
 
+## Example
 
-```bash
-git clone https://github.com/tpaviot/pythonocc-core
+In our development process, we used the Fusion 360 CAD program for STEP file creation, but any of the standard CAD programs could be used instead.
 
-cd pythonocc-core
-```
-
-###
-
-```bash
-wget 'https://github.com/tpaviot/pythonocc-core/archive/refs/tags/7.7.0.tar.gz' -O 7.7.0.tar.gz
- tar -zxvf 7.7.0.tar.gz 
-
-cd pythonocc-core-7.7.0
-
-mkdir cmake-build
-
-cd cmake-build
-
-cmake \
- -DOCE_INCLUDE_PATH=/opt/build/occt753/include/opencascade \
- -DOCE_LIB_PATH=/opt/build/occt753/lib \
- -DPYTHONOCC_BUILD_TYPE=Release \
- ..
-```
-
-if doesnt work::
-
-cmake \
--DPython3_EXECUTABLE=/usr/bin/python3.8 \
- -DOCE_INCLUDE_PATH=/opt/build/occt753/include/opencascade \
- -DOCE_LIB_PATH=/opt/build/occt753/lib \
- -DPYTHONOCC_BUILD_TYPE=Release \
- ..
-
+The example is hier: link
 
 
 ## Citations
@@ -112,6 +79,7 @@ cmake \
 * pythonocc: Thomas Paviot. (2022). pythonocc (7.7.0). Zenodo. https://doi.org/10.5281/zenodo.3605364
 
 Import asembly: heare and in code
+
 
 
 
