@@ -5,7 +5,7 @@
 
 
 <img src="./documentation/jsi-logo-1-150x150.png" 
-     alt="jsi" height="170"  style="float: left; margin-right: 10px;" >  
+     alt="jsi" height="170"  style="float: left; margin-right: 10px;" align="right" >  
      
 <img src="./documentation/reconcycle-transparent.png" 
      alt="reconcycle" height="70"  style="float: left; margin-right: 10px;" >  
