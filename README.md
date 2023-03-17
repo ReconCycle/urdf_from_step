@@ -6,8 +6,10 @@
 ![alt text](./documentation/reconcycle-transparent.png)
 
 <img src="./documentation/jsi-logo-1-150x150.png" 
-     alt="eu_flag" height="45" align="left" >  
-
+     alt="eu_flag" height="70" align="left" >  
+     
+<img src="./documentation/reconcycle-transparent.png" 
+     alt="eu_flag" height="70" align="right" >  
 
 
 ## About
