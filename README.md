@@ -3,12 +3,14 @@
 <img src="./documentation/jsi-logo-1-150x150.png" 
      alt="jsi" height="170"   align="right" >  
      
+          
+<img src="./documentation/reconcycle-transparent.png" 
+     alt="reconcycle" height="70"  align="right" >  
+
+     
 # urdf_from_step
 
 
-     
-<img src="./documentation/reconcycle-transparent.png" 
-     alt="reconcycle" height="70"  style="float: left; margin-right: 10px;" >  
 
 
 ## About
