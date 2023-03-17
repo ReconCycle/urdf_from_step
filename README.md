@@ -30,7 +30,7 @@ Because the installation of (pythonOCC-core)(https://github.com/tpaviot/pythonoc
 
 ### Docker
 
-Docker repository sourec is [hier](https://github.com/ReconCycle/urdf-from-step-docker).
+Docker repository source is [hier](https://github.com/ReconCycle/urdf-from-step-docker).
 
 Builded docker image is [hier](https://github.com/ReconCycle/urdf-from-step-docker/pkgs/container/urdf-from-step).
 
