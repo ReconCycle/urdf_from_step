@@ -33,9 +33,12 @@ except ImportError:
     HAVE_SVGWRITE = False
 
 def read_step_file_asembly(filename):
+
     """ Returns list of tuples (topods_shape, label, color)
     Use OCAF.
     """
+    enable_print = False
+
     if not os.path.isfile(filename):
         raise FileNotFoundError("%s not found." % filename)
     # the list:
@@ -131,7 +134,8 @@ def read_step_file_asembly(filename):
                     locs.pop()
 
         elif shape_tool.IsSimpleShape(lab):
-            print("\n########  simpleshape label :", lab)
+            if enable_print:
+                print("\n########  simpleshape label :", lab)
             shape = shape_tool.GetShape(lab)
             #print("    all ass locs   :", locs)
 
@@ -176,14 +180,16 @@ def read_step_file_asembly(filename):
                     color_tool.SetInstanceColor(shape, 2, c)
 
                     n = c.Name(c.Red(), c.Green(), c.Blue())
-                    print('    shape color Name & RGB: ', c, n, c.Red(), c.Green(), c.Blue())
+                    if enable_print:
+                        print('    shape color Name & RGB: ', c, n, c.Red(), c.Green(), c.Blue())
 
             shape_disp = BRepBuilderAPI_Transform(shape, loc.Transformation()).Shape()
             if not shape_disp in output_shapes:
                 output_shapes[shape_disp] = [lab.GetLabelName(), c,hiarchy.copy(),locs.copy()]
             for i in range(l_subss.Length()):
                 lab_subs = l_subss.Value(i+1)
-                print("\n########  simpleshape subshape label :", lab)
+                if enable_print:
+                    print("\n########  simpleshape subshape label :", lab)
                 shape_sub = shape_tool.GetShape(lab_subs)
 
                 c = Quantity_Color(0.5, 0.5, 0.5, Quantity_TOC_RGB)  # default color
@@ -196,7 +202,8 @@ def read_step_file_asembly(filename):
                     color_tool.SetInstanceColor(shape_sub, 2, c)
                     colorSet = True
                     n = c.Name(c.Red(), c.Green(), c.Blue())
-                    print('    instance color Name & RGB: ', c, n, c.Red(), c.Green(), c.Blue())
+                    if enable_print:
+                        print('    instance color Name & RGB: ', c, n, c.Red(), c.Green(), c.Blue())
 
                 if not colorSet:
                     if (color_tool.GetColor(lab_subs, 0, c) or
@@ -207,7 +214,8 @@ def read_step_file_asembly(filename):
                         color_tool.SetInstanceColor(shape, 2, c)
 
                         n = c.Name(c.Red(), c.Green(), c.Blue())
-                        print('    shape color Name & RGB: ', c, n, c.Red(), c.Green(), c.Blue())
+                        if enable_print:
+                            print('    shape color Name & RGB: ', c, n, c.Red(), c.Green(), c.Blue())
                 shape_to_disp = BRepBuilderAPI_Transform(shape_sub, loc.Transformation()).Shape()
                 # position the subshape to display
                 if not shape_to_disp in output_shapes:

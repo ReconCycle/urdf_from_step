@@ -14,11 +14,14 @@ from tf.transformations import euler_from_quaternion, quaternion_from_euler
 from urdf_parser_py import urdf
 
 from catkin_pkg.package_templates import create_package_files, PackageTemplate
+import rospkg
 
 
 #Python
 import numpy as np
 import os
+import xml.etree.ElementTree as ET
+
 
 
 #Custom
@@ -63,6 +66,7 @@ def calculateTfToRoot(joint, joint_list):
 
 
 def separateRobotPartsFromStep(parts_data):
+    print("Searching trough step...")
 
     robot_joints =[]
     robot_parts = []
@@ -80,15 +84,15 @@ def separateRobotPartsFromStep(parts_data):
         if len(part_data)==4: #type(part) == TopoDS_Solid or type(part) == TopoDS_Compound or type(part) == TopoDS_Shell: #check id solid or compound
             segment_name, segment_color, segment_hierarchy, segment_trans = part_data
 
-            print(segment_hierarchy)
-            print(segment_name)
+            #print(segment_hierarchy)
+            #print(segment_name)
 
             segment_location = part.Location().Transformation()
 
 
             segment_position = changePos2M(segment_location)
             segment_q_orientation = [segment_location.GetRotation().X(), segment_location.GetRotation().Y(), segment_location.GetRotation().Z(), segment_location.GetRotation().W()]
-            print(segment_location)
+            #print(segment_location)
             #Parse joints data
             if segment_hierarchy[1] == "URDF" or segment_hierarchy[1] == "urdf": #check for urdf
                 joint_name = segment_hierarchy[2] 
@@ -184,6 +188,7 @@ def separateRobotPartsFromStep(parts_data):
 
 
 def createSTLs(robot_parts,meshes_path):
+    print("Preparing meshes...")
 
 
     #CREATE STLs
@@ -197,13 +202,16 @@ def createSTLs(robot_parts,meshes_path):
     test_count = 0
     max_parts = 2000
     #root_link_name ="Base"
-
+    #print("len:"+str(len(robot_parts)))
+    #print("robotParts:")
 
     for part in robot_parts:
 
-        print(part)
+
+        #print(part)
         #file_name = part['hierarchy'][-1]+"-"+part["name"]+".stl"
         if test_count>max_parts:
+            print("to many parts, set higher limit!")
             break
         test_count = test_count + 1
 
@@ -237,14 +245,14 @@ def createSTLs(robot_parts,meshes_path):
         trfs.SetScale(gp_Pnt(),0.001)
         scaled_part = BRepBuilderAPI_Transform(part['part'], trfs).Shape()
         
-        print(output_file)
+        #print(output_file)
         write_stl_file(scaled_part, output_file )
         output_files.append(file_name)
 
-        return output_files
+    return output_files
 
 def createMaterialsAndColors(robot_parts, robot_links, meshes_paths, root_link_name):
-
+    print("Creating materials...")
     colors_values = []
     colors_names = []
     color_counter = 0
@@ -259,6 +267,7 @@ def createMaterialsAndColors(robot_parts, robot_links, meshes_paths, root_link_n
     mesh_i = 0
 
     for part in robot_parts:
+        #print(mesh_i)
 
         #PREPARE new color
 
@@ -290,7 +299,7 @@ def createMaterialsAndColors(robot_parts, robot_links, meshes_paths, root_link_n
                     break
                 else:
                     current_name = root_link_name
-        print(current_name)
+        #print(current_name)
         if current_name in robot_links:
             file_name = meshes_paths[mesh_i]
             link_meshes[current_name].append({"mesh_name":file_name,"mesh_material":color_name,"color_value":part["color"]})
@@ -426,11 +435,72 @@ def createPackageROS(package_name,output_folder_path):
     create_package_files(target_path=package_path,
                         package_template=package_template,
                         rosdistro="noetic",
-                        newfiles={"launch/start.launch":"test"})#,"urdf/test.urdf":"test2"
+                        #newfiles={"launch/start.launch":"test"}
+                        )#,"urdf/test.urdf":"test2"
+
+
+def setupLaunchXml(new_package_name):
+
+
+
+    # importing element tree
+    # under the alias of ET
+
+    rospack = rospkg.RosPack()
+    template_path = rospack.get_path('urdf_from_step') + "/launch/template.launch"
+
+    print(template_path)
+
+    # Passing the path of the
+    # xml document to enable the
+    # parsing process
+    tree = ET.parse(template_path)
+    
+    # getting the parent tag of
+    # the xml document
+    root = tree.getroot()
+ 
+    # go to atributes
+    
+   
+    for child in root:
+
+        try:
+            if child.attrib['name'] == "tf_prefix":
+                child.attrib['default'] = new_package_name
+            if child.attrib['name'] == "urdf_name":
+                child.attrib['default'] = new_package_name   
+            if  child.attrib['name'] == "urdf_path":
+                child.attrib['default'] = "$(find "+ new_package_name +")/urdf/$(arg urdf_name).urdf"
+        except:
+            pass
+
+    for child in root:
+
+        print(child.attrib)
+
+    xml_string = ET.tostring(root)
+
+    return xml_string
+
+def changeCmake(input_string):
+
+
+    old_text = "# install(FILES\n#   # myfile1\n#   # myfile2\n#   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}\n# )"
+    new_text = "install(DIRECTORY\n   launch/\n    DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION}\n  FILES_MATCHING PATTERN \"*.launch\" \n )"
+
+
+
+
+    output_string = input_string.replace(old_text, new_text)
+
+    return output_string
 
 
 
 if __name__ == '__main__':
+
+
 
     rospy.init_node('URDF_creator')
     step_file_path = rospy.get_param('~step_file_path')
@@ -447,6 +517,18 @@ if __name__ == '__main__':
     rospy.loginfo("Creating URDF from STEP file:")
     rospy.loginfo(step_file_path)
 
+    #CHANGE CMAKE
+
+    cmake_path = package_path +"/CMakeLists.txt"
+
+    cmake_file_handle = open(cmake_path,"r+")
+
+    text = cmake_file_handle.read()
+
+    changed_text = changeCmake(text) 
+
+    cmake_file_handle.write(changed_text)
+    cmake_file_handle.close()
 
     parts_data = read_step_file_asembly(step_file_path)
 
@@ -457,7 +539,11 @@ if __name__ == '__main__':
     if os.path.exists(meshes_path) == False:
         os.mkdir(meshes_path)
 
+
+
+
     mesh_paths = createSTLs(robot_parts, meshes_path)
+
 
     robot_parts, link_meshes = createMaterialsAndColors(robot_parts, robot_links, mesh_paths, root_link_name)
 
@@ -476,10 +562,26 @@ if __name__ == '__main__':
     file_handle.write(robot.to_xml_string())
     file_handle.close()
 
+
     #COPY LAUNCH TEMPLATE
+    print("Prepare launch file..")
+    new_package_name = package_name
+    xml_string = setupLaunchXml(new_package_name)
+
+    print(xml_string)
+    if os.path.exists(package_path +"/launch") == False:
+        os.mkdir(package_path +"/launch")
+
+    launch_path = package_path +"/launch/load_urdf.launch"
+
+    launch_file_handle = open(launch_path,"wb")
+    launch_file_handle.write(xml_string)
+    launch_file_handle.close()
+
+
 
     
-
+    print("Conversion finished.")
 
     rospy.signal_shutdown("Finish")
     

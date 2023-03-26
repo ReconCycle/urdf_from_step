@@ -70,6 +70,17 @@ In our development process, we used the Fusion 360 CAD program for STEP file cre
 The example is hier: link
 
 
+```bash
+roslaunch urdf_from_step build_urdf_from_step.launch step_file_path:="/input_step_files/robot_arm.step" urdf_package_name:="test2"
+```
+
+
+## RVIZ
+
+SET:
+* tf prefix
+* urdf description name
+
 ## Citations
 
 * OCC:
