@@ -67,7 +67,7 @@ https://github.com/tpaviot/pythonocc-core/blob/master/INSTALL.md
 
 In our development process, we used the Fusion 360 CAD program for STEP file creation, but any of the standard CAD programs could be used instead.
 
-The example is hier: link
+The examples and manuals are [hier](https://github.com/ReconCycle/urdf-from-step-examples).
 
 
 ```bash
