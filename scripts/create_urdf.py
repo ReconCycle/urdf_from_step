@@ -83,8 +83,8 @@ def separateRobotPartsFromStep(parts_data):
 
         if len(part_data)==4: #type(part) == TopoDS_Solid or type(part) == TopoDS_Compound or type(part) == TopoDS_Shell: #check id solid or compound
             segment_name, segment_color, segment_hierarchy, segment_trans = part_data
-
-            #print(segment_hierarchy)
+            print("hierarchy:")
+            print(segment_hierarchy)
             #print(segment_name)
 
             segment_location = part.Location().Transformation()
@@ -94,88 +94,88 @@ def separateRobotPartsFromStep(parts_data):
             segment_q_orientation = [segment_location.GetRotation().X(), segment_location.GetRotation().Y(), segment_location.GetRotation().Z(), segment_location.GetRotation().W()]
             #print(segment_location)
             #Parse joints data
-            if segment_hierarchy[1] == "URDF" or segment_hierarchy[1] == "urdf": #check for urdf
-                joint_name = segment_hierarchy[2] 
-                if joint_name.find("joint_")==0:
-
-                    connection_name = joint_name[6:]
-                    connection_id_string = "_to_"
-                    ind = connection_name.find(connection_id_string)
-                    parent_name = connection_name[0:ind]
-                    connection_name = connection_name[len(parent_name)+len(connection_id_string):]
-                    ind = connection_name.find("_")
-                    child_name = connection_name[0:ind]
-
-                    if child_name == "": #chec if this is root link
-                        root_link_name = parent_name
-                        child_name = parent_name #to enable moving everithing to this frame
-                        parent_name = "" #"root joint doesnt have parent"
-
-    
-                    joint_data = {}
-                    joint_data["name"] = parent_name + "_" + child_name
+            if len(segment_hierarchy)>1: #filter out joints
+                if segment_hierarchy[1] == "URDF" or segment_hierarchy[1] == "urdf": #check for urdf
+                    joint_name = segment_hierarchy[2] 
                     
-                    for test_type in avalibel_joint_types: #iterate trough avalibel type and set correct one
-                        if segment_name.find(test_type)==0:
-                            joint_data["type"] = test_type
-                            break
+                    if joint_name.find("joint_")==0:
 
-                    joint_data["parent"] = parent_name
-                    joint_data["child"] = child_name
-                    joint_data["position"] = segment_position
-                    joint_data["rotation"] = segment_q_orientation
-                    joint_data["location"] = segment_location
-                    robot_joints.append(joint_data)
+                        connection_name = joint_name[6:]
+                        connection_id_string = "_to_"
+                        ind = connection_name.find(connection_id_string)
+                        parent_name = connection_name[0:ind]
+                        connection_name = connection_name[len(parent_name)+len(connection_id_string):]
+                        ind = connection_name.find("_")
+                        child_name = connection_name[0:ind]
 
-                    #DEFINE LINKS
-                    #Test child links and add
-                    if not child_name in robot_links:
-                        robot_links.append(child_name)
+                        if child_name == "": #chec if this is root link
+                            root_link_name = parent_name
+                            child_name = parent_name #to enable moving everithing to this frame
+                            parent_name = "" #"root joint doesnt have parent"
 
-                    #Create links
-                    if parent_name !="": #not epty root mark
-                        if not parent_name in robot_links:
-                            robot_links.append(parent_name)
+        
+                        joint_data = {}
+                        joint_data["name"] = parent_name + "_" + child_name
+                        
+                        for test_type in avalibel_joint_types: #iterate trough avalibel type and set correct one
+                            if segment_name.find(test_type)==0:
+                                joint_data["type"] = test_type
+                                break
+
+                        joint_data["parent"] = parent_name
+                        joint_data["child"] = child_name
+                        joint_data["position"] = segment_position
+                        joint_data["rotation"] = segment_q_orientation
+                        joint_data["location"] = segment_location
+                        robot_joints.append(joint_data)
+
+                        #DEFINE LINKS
+                        #Test child links and add
+                        if not child_name in robot_links:
+                            robot_links.append(child_name)
+
+                        #Create links
+                        if parent_name !="": #not epty root mark
+                            if not parent_name in robot_links:
+                                robot_links.append(parent_name)
 
 
 
+                        continue
+                    else:
 
-                else:
+                        print("PROBLEM: Not correct naming of joints in URDF asembly")
+                        print(joint_name)
+                        continue
 
-                    print("PROBLEM: Not correct naming of joints in URDF asembly")
-                    print(joint_name)
+            if type(part) == TopoDS_Solid:#== TopoDS_Compound : #
 
+                if False:            
+                    if not(segment_hierarchy[1] in robot_links) and not(segment_hierarchy[1] in robot_links_vis_data): #make list of links at top hiarchie
+                    #segments_data={segment_hierarchy[-1]:{segment_name:segment_location}}        
+                        robot_links_vis_data.append(segment_hierarchy[1])
 
-            else:
+                        #zloži elemente v dictionary po hiarhiji
+                        if segment_hierarchy[-1] in segments_data:
+                            segments_data[segment_hierarchy[-1]].update({segment_name: part})
+                        else:
+                            segments_data.update({segment_hierarchy[-1]:{segment_name:part}})
+                robot_part = {}
+                robot_part["name"] = segment_name
+                robot_part["location"] = segment_location
+                robot_part["hierarchy"] = segment_hierarchy
+                robot_part["part"] = part
+                robot_part["color"] = [segment_color.Red(),segment_color.Green(),segment_color.Blue()]
+                robot_parts.append(robot_part)
 
-                if type(part) == TopoDS_Solid:#== TopoDS_Compound : #
-
-                    if False:            
-                        if not(segment_hierarchy[1] in robot_links) and not(segment_hierarchy[1] in robot_links_vis_data): #make list of links at top hiarchie
-                        #segments_data={segment_hierarchy[-1]:{segment_name:segment_location}}        
-                            robot_links_vis_data.append(segment_hierarchy[1])
-
-                            #zloži elemente v dictionary po hiarhiji
-                            if segment_hierarchy[-1] in segments_data:
-                                segments_data[segment_hierarchy[-1]].update({segment_name: part})
-                            else:
-                                segments_data.update({segment_hierarchy[-1]:{segment_name:part}})
-                    robot_part = {}
-                    robot_part["name"] = segment_name
-                    robot_part["location"] = segment_location
-                    robot_part["hierarchy"] = segment_hierarchy
-                    robot_part["part"] = part
-                    robot_part["color"] = [segment_color.Red(),segment_color.Green(),segment_color.Blue()]
-                    robot_parts.append(robot_part)
-
-                if type(part) == TopoDS_Shell:
-                    robot_part = {}
-                    robot_part["name"] = segment_name
-                    robot_part["location"] = segment_location
-                    robot_part["hierarchy"] = segment_hierarchy
-                    robot_part["part"] = part
-                    robot_part["color"] = [segment_color.Red(),segment_color.Green(),segment_color.Blue()]
-                    robot_parts.append(robot_part)
+            if type(part) == TopoDS_Shell:
+                robot_part = {}
+                robot_part["name"] = segment_name
+                robot_part["location"] = segment_location
+                robot_part["hierarchy"] = segment_hierarchy
+                robot_part["part"] = part
+                robot_part["color"] = [segment_color.Red(),segment_color.Green(),segment_color.Blue()]
+                robot_parts.append(robot_part)
 
 
         else:
@@ -351,7 +351,7 @@ def generateURDF(robot_joints,robot_links, link_meshes, root_link_name, package_
             Pos1 = urdf.Pose(xyz=pos_j, rpy=or_j)#'zyx'
             #Pos1 = Pose(xyz=[0,0,0], rpy=[0,0,0,])#'zyx'
             new_joint = urdf.Joint( name= joint["name"], parent=joint["parent"], child=joint["child"], joint_type=joint["type"],
-                                axis=[0, 0, 1], origin=Pos1,
+                                axis=[1, 0, 0], origin=Pos1,
                                 limit=joint_limit, dynamics=None, safety_controller=None,
                                 calibration=None, mimic=None)
 
