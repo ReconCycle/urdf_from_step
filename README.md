@@ -42,26 +42,10 @@ docker pull ghcr.io/reconcycle/urdf-from-step:latest
 
 ### Build from source
 
+Non-ROS dependencies: 
 
+* (pythonOCC-core)(https://github.com/tpaviot/pythonocc-core)
 
-```bash
-# comment
-sudo apt-get install ninja-build swig
-
-wget 'https://git.dev.opencascade.org/gitweb/?p=occt.git;a=snapshot;h=fecb042498514186bd37fa621cdcf09eb61899a3;sf=tgz' -O occt-fecb042.tar.gz
-
-tar -zxvf occt-fecb042.tar.gz >> extracted_occt753_files.txt
-
-
-mkdir occt-fecb042/build
-
-cd occt-fecb042/build
-
-sudo ninja install
-
-
-https://github.com/tpaviot/pythonocc-core/blob/master/INSTALL.md
-```
 
 ## Example
 
@@ -71,14 +55,26 @@ The examples and manuals are [hier](https://github.com/ReconCycle/urdf-from-step
 
 
 ```bash
-roslaunch urdf_from_step build_urdf_from_step.launch step_file_path:="/input_step_files/robot_arm.step" urdf_package_name:="test2"
+roslaunch urdf_from_step build_urdf_from_step.launch step_file_path:="/input_step_files/robot_arm.step" urdf_package_name:="robot_arm"
+
 ```
+Copy "robot_arm" package folder from output folder to your catkin_ws/src/ 
+
+```bash
+catkin build robot_arm
+cd catkin_ws
+source devel/setup.bash
+roslaunch robot_arm load_urdf.launch
+```
+
 
 
 ## RVIZ
 
 SET:
+
 * tf prefix
+
 * urdf description name
 
 ## Citations
