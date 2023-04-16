@@ -10,12 +10,21 @@
 
 ## About
 
-This is ROS package for automated conversion of STEP models to URDF format. The program takes as input the STEP file (left) of the desired robot or robot-like maschine and creates a new ROS package. The package created contains the URDF description, the STL mesh files required by URDF description, and the ROS launch file to load the data into the ROS for visualization and control (center and right). 
+This is ROS package for automated conversion of STEP models to URDF format. The program takes as input the STEP file (left images) of the desired robot or robot-like maschine and creates a new ROS package. The package created contains the URDF description, the STL mesh files required by URDF description, and the ROS launch file to load the data into the ROS for visualization (center images) and control (right images). 
 
+Simple robot arm:
 
 <img src="./documentation/figures/robot_arm_cad_with_cs.PNG" 
      height="200"   >  <img src="./documentation/figures/rviz tf center.png" 
      height="200"   >  <img src="./documentation/figures/rviz moved.png" 
+     height="200"   >  
+
+
+Cutter module from Reconcycle project:
+
+<img src="./documentation/figures/cad_cs_gilotina.png" 
+     height="200"   >  <img src="./documentation/figures/rviz_tf_gilotina.png" 
+     height="200"   >  <img src="./documentation/figures/gilotina2.png" 
      height="200"   >  
 
 
