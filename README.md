@@ -73,9 +73,9 @@ roslaunch robot_arm load_urdf.launch
 ```
 
 
-More detailed manuals regarding use conversion from STEP to URDF are provided in [hier](https://github.com/ReconCycle/urdf-from-step-examples/tree/main/documentation/step_to_urdf_conversion).
+More detailed instructions regarding conversion from STEP to URDF are provided in [hier](https://github.com/ReconCycle/urdf-from-step-examples/tree/main/documentation/step_to_urdf_conversion).
 
-Where also the instruction for URDF visualization are provided [hier](https://github.com/ReconCycle/urdf-from-step-examples/tree/main/documentation/visualization).
+Where also the instructions for URDF visualization are provided [hier](https://github.com/ReconCycle/urdf-from-step-examples/tree/main/documentation/visualization).
 
 ## References
 
