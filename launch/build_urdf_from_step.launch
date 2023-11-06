@@ -1,7 +1,7 @@
 <launch>
 
     <!-- list of arguments that can be given as inputs of the launch file -->
-    <arg name="step_file_path"   default="/input_step_files/testni.step" />
+    <arg name="step_file_path"   default="/input_step_files/test.step" />
     <arg name="output_folder_path"   default="/output_ros_urdf_packages" />
     <arg name="urdf_package_name"   default="test3" />
 

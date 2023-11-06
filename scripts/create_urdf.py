@@ -83,9 +83,11 @@ def separateRobotPartsFromStep(parts_data):
 
         if len(part_data)==4: #type(part) == TopoDS_Solid or type(part) == TopoDS_Compound or type(part) == TopoDS_Shell: #check id solid or compound
             segment_name, segment_color, segment_hierarchy, segment_trans = part_data
+
+            segment_name = segment_name.replace(" ", "-")
             print("hierarchy:")
             print(segment_hierarchy)
-            #print(segment_name)
+            print(segment_name)
 
             segment_location = part.Location().Transformation()
 
@@ -95,23 +97,27 @@ def separateRobotPartsFromStep(parts_data):
             #print(segment_location)
             #Parse joints data
             if len(segment_hierarchy)>1: #filter out joints
-                if segment_hierarchy[1] == "URDF" or segment_hierarchy[1] == "urdf": #check for urdf
+
+                if segment_hierarchy[1].find("URDF") == 0 or segment_hierarchy[1].find("urdf") == 0:  #check for urdf
                     joint_name = segment_hierarchy[2] 
-                    
+
                     if joint_name.find("joint_")==0:
 
                         connection_name = joint_name[6:]
                         connection_id_string = "_to_"
                         ind = connection_name.find(connection_id_string)
-                        parent_name = connection_name[0:ind]
-                        connection_name = connection_name[len(parent_name)+len(connection_id_string):]
-                        ind = connection_name.find("_")
-                        child_name = connection_name[0:ind]
-
-                        if child_name == "": #chec if this is root link
+                        if ind == -1: #this is for base joint
+                            ind = connection_name.find("_")
+                            parent_name = connection_name[0:ind]
                             root_link_name = parent_name
                             child_name = parent_name #to enable moving everithing to this frame
                             parent_name = "" #"root joint doesnt have parent"
+                        else:
+                            parent_name = connection_name[0:ind]
+                            connection_name = connection_name[len(parent_name)+len(connection_id_string):]
+                            ind = connection_name.find("_")
+                            child_name = connection_name[0:ind]
+
 
         
                         joint_data = {}
@@ -187,7 +193,7 @@ def separateRobotPartsFromStep(parts_data):
 
 
 
-def createSTLs(robot_parts,meshes_path):
+def createSTLs(robot_parts,meshes_path, mode="binary"):
     print("Preparing meshes...")
 
 
@@ -246,7 +252,7 @@ def createSTLs(robot_parts,meshes_path):
         scaled_part = BRepBuilderAPI_Transform(part['part'], trfs).Shape()
         
         #print(output_file)
-        write_stl_file(scaled_part, output_file )
+        write_stl_file(scaled_part, output_file, mode=mode)
         output_files.append(file_name)
 
     return output_files
@@ -503,9 +509,9 @@ if __name__ == '__main__':
 
 
     rospy.init_node('URDF_creator')
-    step_file_path = rospy.get_param('~step_file_path')
-    output_folder_path = rospy.get_param('~output_folder_path')
-    package_name = rospy.get_param('~urdf_package_name')
+    step_file_path = rospy.get_param('~step_file_path', '/input_step_files/test.step')
+    output_folder_path = rospy.get_param('~output_folder_path', '/output_ros_urdf_packages')
+    package_name = rospy.get_param('~urdf_package_name', 'test_package')
     package_path = "/output_ros_urdf_packages/" + package_name
 
     rospy.loginfo("Creating ROS package:")
@@ -547,7 +553,6 @@ if __name__ == '__main__':
 
     robot_parts, link_meshes = createMaterialsAndColors(robot_parts, robot_links, mesh_paths, root_link_name)
 
-    step_file_path = rospy.get_param('~step_file_path')
 
     robot = generateURDF(robot_joints,robot_links, link_meshes, root_link_name, package_name)
 
