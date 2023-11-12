@@ -21,6 +21,7 @@ import rospkg
 import numpy as np
 import os
 import xml.etree.ElementTree as ET
+from shutil import rmtree
 
 
 
@@ -509,7 +510,7 @@ if __name__ == '__main__':
 
 
     rospy.init_node('URDF_creator')
-    step_file_path = rospy.get_param('~step_file_path', '/input_step_files/test.step')
+    step_file_path = rospy.get_param('~step_file_path', '/input_step_files/robot_arm.step')
     output_folder_path = rospy.get_param('~output_folder_path', '/output_ros_urdf_packages')
     package_name = rospy.get_param('~urdf_package_name', 'test_package')
     package_path = "/output_ros_urdf_packages/" + package_name
@@ -517,28 +518,36 @@ if __name__ == '__main__':
     rospy.loginfo("Creating ROS package:")
     rospy.loginfo(package_name)
 
+    #delete existing package
+    if os.path.exists(package_path) == True:
+        rospy.loginfo("Package alread exist! Deliting:" + package_name)
+        rmtree(package_path)
+
+
     createPackageROS(package_name,output_folder_path)
 
 
     rospy.loginfo("Creating URDF from STEP file:")
     rospy.loginfo(step_file_path)
 
+
+
     #CHANGE CMAKE
 
     cmake_path = package_path +"/CMakeLists.txt"
 
     cmake_file_handle = open(cmake_path,"r+")
-
+    
     text = cmake_file_handle.read()
 
     changed_text = changeCmake(text) 
 
     cmake_file_handle.write(changed_text)
     cmake_file_handle.close()
-
+    rospy.loginfo("test3")
     parts_data = read_step_file_asembly(step_file_path)
 
-
+    rospy.loginfo("test2")
     robot_parts, robot_joints, robot_links, root_link_name  = separateRobotPartsFromStep(parts_data)
 
     meshes_path = package_path +"/meshes"
