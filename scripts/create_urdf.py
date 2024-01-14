@@ -721,7 +721,7 @@ if __name__ == '__main__':
         xacro_string = robot.to_xml_string()
 
         xacro_string  = substituteInXacro(xacro_string, robot_joints,robot_links)
-        print(xacro_string)
+        #print(xacro_string)
 
         xacro_path = package_path +"/urdf/"+package_name+".urdf.xacro"
         file_handle = open(xacro_path,"w")
