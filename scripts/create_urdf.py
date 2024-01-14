@@ -56,15 +56,75 @@ def createXacroRunMacro():
 
     return xacro_string
 
-def substituteInXacro(xacro_string):
+def changeXacroJointNames(xacro_string, joint_names , property_line = ""):
+
+    link_i = 0
+    base_link_string = "<joint name=\""
+
+    for link_name in joint_names:
+
+        new_link_name = "joint_" + str(link_i) + "_name"
+        new_property = "<xacro:property name=\""+ new_link_name +"\" value=\"${robot_prefix}" + link_name + "\" />"
+        xacro_string = insertToXacroLine(xacro_string, property_line, new_property)
+        current_link_string = base_link_string + link_name + "\""
+        new_link_string = base_link_string + "${" + new_link_name + "}\""
+        xacro_string = xacro_string.replace(current_link_string , new_link_string)
+        link_i = link_i + 1 
+
+
+    return xacro_string
+
+
+def changeXacroLinkNames(xacro_string, link_names , property_line = ""):
+
+    #<link name="pillar">
+
+    link_i = 0
+    base_link_string = "<link name=\""
+    link_string_as_parent = "<parent link=\""
+    link_string_as_child = "<child link=\""
+
+        
+
+    for link_name in link_names:
+
+        new_link_name = "link_" + str(link_i) + "_name"
+        new_property = "<xacro:property name=\""+ new_link_name +"\" value=\"${robot_prefix}" + link_name + "\" />"
+        xacro_string = insertToXacroLine(xacro_string, property_line, new_property)
+
+
+        current_link_string = base_link_string + link_name + "\""
+        new_link_string = base_link_string + "${" + new_link_name + "}\""
+        xacro_string = xacro_string.replace(current_link_string , new_link_string)
+
+        #replace in joints
+
+        current_link_string = link_string_as_parent + link_name + "\""
+        new_link_string = link_string_as_parent + "${" + new_link_name + "}\""
+        xacro_string = xacro_string.replace(current_link_string , new_link_string)
+    
+        current_link_string = link_string_as_child + link_name + "\""
+        new_link_string = link_string_as_child + "${" + new_link_name + "}\""
+        xacro_string = xacro_string.replace(current_link_string , new_link_string)
+    
+        link_i = link_i + 1 
+
+
+    return xacro_string
+
+def substituteInXacro(xacro_string, robot_joints,robot_links_names):
 
     xacro_head = "<robot xmlns:xacro=\"http://wiki.ros.org/xacro\" name = \"robot\" >"
+    xacro_macro_head = "<xacro:macro name=\"my_robot\" params=\"robot_name\">"
 
     xacro_string = xacro_string.replace("<robot name=\"fifi\" version=\"1.0\">", xacro_head )
 
-    xacro_string = insertToXacroLine(xacro_string, xacro_head,"<xacro:macro name=\"my_robot\" params=\"robot_name\">")
+    xacro_string = insertToXacroLine(xacro_string, xacro_head,xacro_macro_head)
 
     xacro_string = insertToXacroLine(xacro_string,"</robot>","</xacro:macro>", before = True)
+
+    prefix_property = "<xacro:property name=\"robot_prefix\" value=\"${robot_name}\" />"
+    xacro_string = insertToXacroLine(xacro_string, xacro_macro_head,prefix_property )
 
     run_string = createXacroRunMacro()
 
@@ -72,6 +132,13 @@ def substituteInXacro(xacro_string):
 
     xacro_string = insertToXacroLine(xacro_string,run_reference,run_string)
 
+    xacro_string = changeXacroLinkNames(xacro_string, robot_links_names, prefix_property )
+    robot_joints_names = []
+    for joint in robot_joints:
+        if joint["parent"]!="":
+            robot_joints_names.append(joint["name"])
+
+    xacro_string = changeXacroJointNames(xacro_string, robot_joints_names, prefix_property )
 
 
     return xacro_string
@@ -653,8 +720,8 @@ if __name__ == '__main__':
     if export_xacro:
         xacro_string = robot.to_xml_string()
 
-        xacro_string  = substituteInXacro(xacro_string)
-
+        xacro_string  = substituteInXacro(xacro_string, robot_joints,robot_links)
+        print(xacro_string)
 
         xacro_path = package_path +"/urdf/"+package_name+".urdf.xacro"
         file_handle = open(xacro_path,"w")
@@ -666,7 +733,7 @@ if __name__ == '__main__':
     new_package_name = package_name
     xml_string = setupLaunchXml(new_package_name)
 
-    print(xml_string)
+    
     if os.path.exists(package_path +"/launch") == False:
         os.mkdir(package_path +"/launch")
 
