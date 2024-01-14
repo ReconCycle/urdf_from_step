@@ -138,11 +138,13 @@ def read_step_file_asembly(filename):  #(from OCC.Extend.DataExchange import rea
                     # print("    Z            :", tran.Z())
 
                     locs.append(loc)
+                    hiarchy.append(name)
                     # print(">>>>")
                     # lvl += 1
                     _get_sub_shapes(label_reference, loc)
                     # lvl -= 1
                     # print("<<<<")
+                    hiarchy.pop()
                     locs.pop()
 
         elif shape_tool.IsSimpleShape(lab):
@@ -212,7 +214,7 @@ def read_step_file_asembly(filename):  #(from OCC.Extend.DataExchange import rea
 
             shape_disp = BRepBuilderAPI_Transform(shape, loc.Transformation()).Shape()
             if shape_disp not in output_shapes:
-                output_shapes[shape_disp] = [lab.GetLabelName(), c]
+                output_shapes[shape_disp] = [lab.GetLabelName(), c, hiarchy.copy(),locs.copy()]
             for i in range(l_subss.Length()):
                 lab_subs = l_subss.Value(i + 1)
                 # print("\n########  simpleshape subshape label :", lab)
