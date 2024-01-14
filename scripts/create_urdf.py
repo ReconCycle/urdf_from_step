@@ -30,6 +30,76 @@ from import_asembly.Asembly_import import read_step_file_asembly
 
 
 
+def createXacroPropertyWithParameterizedNamespace(property_name, value, prefix_param_name):
+    xacro_string = "<xacro:property name=\"" + property_name + "\" value=\"${"+ prefix_param_name +"}" + value  + "\" />"
+    #<xacro:property name="joint_name_1" value="${robot_prefix}joint1" />
+    return xacro_string
+
+
+
+def createXacroRunMacro():
+
+
+    xacro_string = """
+    <xacro:arg name="robot_namespace"  default=""/>
+    <xacro:arg name="standalone"  default="true"/>
+    <xacro:property name="test_value" value="$(arg standalone)" />
+
+    <xacro:if value="${test_value}">
+    
+        <xacro:property name="this_robot_name" value="" />
+
+    </xacro:if>
+
+    <xacro:my_robot robot_name="${this_robot_name}" />
+    """ 
+
+    return xacro_string
+
+def substituteInXacro(xacro_string):
+
+    xacro_head = "<robot xmlns:xacro=\"http://wiki.ros.org/xacro\" name = \"robot\" >"
+
+    xacro_string = xacro_string.replace("<robot name=\"fifi\" version=\"1.0\">", xacro_head )
+
+    xacro_string = insertToXacroLine(xacro_string, xacro_head,"<xacro:macro name=\"my_robot\" params=\"robot_name\">")
+
+    xacro_string = insertToXacroLine(xacro_string,"</robot>","</xacro:macro>", before = True)
+
+    run_string = createXacroRunMacro()
+
+    run_reference = "</xacro:macro>"
+
+    xacro_string = insertToXacroLine(xacro_string,run_reference,run_string)
+
+
+
+    return xacro_string
+
+def insertToXacroLine(xacro_string, reference_text, insert_text , before = False):
+
+    base_lines = xacro_string.splitlines()
+    insert_lines = insert_text.splitlines()
+
+    insert_i = 0
+    for i, line in enumerate(base_lines):
+      
+        if reference_text in line:
+            insert_i = i
+            break
+   
+    if before == False:
+        insert_i = insert_i + 1
+       
+
+    new_list = base_lines[:insert_i] + insert_lines + base_lines[insert_i:]
+
+    xacro_string = "\n".join(new_list)
+
+    return xacro_string
+
+
+
 def changePos2M(segment_location):
 
     return [segment_location.TranslationPart().X() / 1000, segment_location.TranslationPart().Y() / 1000, segment_location.TranslationPart().Z() / 1000]
@@ -68,6 +138,7 @@ def calculateTfToRoot(joint, joint_list):
 
 def separateRobotPartsFromStep(parts_data):
     print("Searching trough step...")
+    print("Prepared " +  str(len(parts_data)) + " parts data")
 
     robot_joints =[]
     robot_parts = []
@@ -80,11 +151,13 @@ def separateRobotPartsFromStep(parts_data):
     root_link_name = None
 
     for part in parts_data:
+        
         part_data = parts_data[part]
+        print(part_data)
 
         if len(part_data)==4: #type(part) == TopoDS_Solid or type(part) == TopoDS_Compound or type(part) == TopoDS_Shell: #check id solid or compound
             segment_name, segment_color, segment_hierarchy, segment_trans = part_data
-
+            
             segment_name = segment_name.replace(" ", "-")
             print("hierarchy:")
             print(segment_hierarchy)
@@ -544,10 +617,10 @@ if __name__ == '__main__':
 
     cmake_file_handle.write(changed_text)
     cmake_file_handle.close()
-    rospy.loginfo("test3")
+    rospy.loginfo("READ STEP FILE ASEMBLY...")
     parts_data = read_step_file_asembly(step_file_path)
 
-    rospy.loginfo("test2")
+    rospy.loginfo("SEPARATE ROBOT PARTS...")
     robot_parts, robot_joints, robot_links, root_link_name  = separateRobotPartsFromStep(parts_data)
 
     meshes_path = package_path +"/meshes"
@@ -564,6 +637,7 @@ if __name__ == '__main__':
 
 
     robot = generateURDF(robot_joints,robot_links, link_meshes, root_link_name, package_name)
+    #print(robot)
 
     if os.path.exists(package_path +"/urdf") == False:
         os.mkdir(package_path +"/urdf")
@@ -571,11 +645,21 @@ if __name__ == '__main__':
     urdf_path = package_path +"/urdf/"+package_name+".urdf"
 
     file_handle = open(urdf_path,"w")
-    #print(robot)
 
     file_handle.write(robot.to_xml_string())
     file_handle.close()
 
+    export_xacro = True
+    if export_xacro:
+        xacro_string = robot.to_xml_string()
+
+        xacro_string  = substituteInXacro(xacro_string)
+
+
+        xacro_path = package_path +"/urdf/"+package_name+".urdf.xacro"
+        file_handle = open(xacro_path,"w")
+        file_handle.write(xacro_string)
+        file_handle.close()
 
     #COPY LAUNCH TEMPLATE
     print("Prepare launch file..")
