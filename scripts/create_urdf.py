@@ -295,6 +295,8 @@ def separateRobotPartsFromStep(parts_data):
                         print(joint_name)
                         continue
 
+            part_for_saving = False
+
             if type(part) == TopoDS_Solid:#== TopoDS_Compound : #
 
                 if False:            
@@ -307,7 +309,19 @@ def separateRobotPartsFromStep(parts_data):
                             segments_data[segment_hierarchy[-1]].update({segment_name: part})
                         else:
                             segments_data.update({segment_hierarchy[-1]:{segment_name:part}})
+
+                part_for_saving = True
+
+            if type(part) == TopoDS_Shell:
+
+                part_for_saving = True
+
+            if part_for_saving:
+                
                 robot_part = {}
+
+                segment_name = segment_name.replace("/", "_") #safty for names includinh / as path
+
                 robot_part["name"] = segment_name
                 robot_part["location"] = segment_location
                 robot_part["hierarchy"] = segment_hierarchy
@@ -315,14 +329,7 @@ def separateRobotPartsFromStep(parts_data):
                 robot_part["color"] = [segment_color.Red(),segment_color.Green(),segment_color.Blue()]
                 robot_parts.append(robot_part)
 
-            if type(part) == TopoDS_Shell:
-                robot_part = {}
-                robot_part["name"] = segment_name
-                robot_part["location"] = segment_location
-                robot_part["hierarchy"] = segment_hierarchy
-                robot_part["part"] = part
-                robot_part["color"] = [segment_color.Red(),segment_color.Green(),segment_color.Blue()]
-                robot_parts.append(robot_part)
+
 
 
         else:
@@ -379,6 +386,7 @@ def createSTLs(robot_parts,meshes_path, mode="binary"):
 
         file_name = file_name + ".stl"
 
+
         output_file = os.path.join(stl_output_dir,file_name)
         #stl_writer = StlAPI_Writer()
         #stl_writer.SetASCIIMode(True)
@@ -392,7 +400,7 @@ def createSTLs(robot_parts,meshes_path, mode="binary"):
         trfs.SetScale(gp_Pnt(),0.001)
         scaled_part = BRepBuilderAPI_Transform(part['part'], trfs).Shape()
         
-        #print(output_file)
+        print("output file: " + output_file)
         write_stl_file(scaled_part, output_file, mode=mode)
         output_files.append(file_name)
 
