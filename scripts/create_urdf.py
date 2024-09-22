@@ -23,7 +23,7 @@ import os
 import xml.etree.ElementTree as ET
 from shutil import rmtree
 
-
+import sys
 
 #Custom
 from import_asembly.Asembly_import import read_step_file_asembly
@@ -202,10 +202,32 @@ def calculateTfToRoot(joint, joint_list):
     
     return local_tf
 
+def findOneVersionOfString(string_word, versions):
+    anser = -1
+
+    for version in versions:
+        anser = string_word.find(version)
+
+        if anser != -1:
+            return anser
+
+    return anser
+
 
 def separateRobotPartsFromStep(parts_data):
     print("Searching trough step...")
     print("Prepared " +  str(len(parts_data)) + " parts data")
+
+    joints_id_names = ["joint_","JOINT_","Joint_"]
+    connection_word_id_names = ["_to_","_TO_" ,"_To_"]
+    urdf_id_names = ["urdf","URDF","Urdf"]
+
+    avalibel_joint_types = ["fixed","revolute", "prismatic"]
+    joint_types_id_names = {}
+    joint_types_id_names["fixed"] =  ["fixed","FIXED","Fixed"]
+    joint_types_id_names["revolute"] =  ["revolute","REVOLUTE","Revolute"]
+    joint_types_id_names["prismatic"] =  ["prismatic","PRISMATIC","Prismatic"]
+
 
     robot_joints =[]
     robot_parts = []
@@ -214,21 +236,20 @@ def separateRobotPartsFromStep(parts_data):
 
 
 
-    avalibel_joint_types = ["fixed","revolute", "prismatic"]
     root_link_name = None
 
     for part in parts_data:
         
         part_data = parts_data[part]
-        print(part_data)
+        #print(part_data)
 
         if len(part_data)==4: #type(part) == TopoDS_Solid or type(part) == TopoDS_Compound or type(part) == TopoDS_Shell: #check id solid or compound
             segment_name, segment_color, segment_hierarchy, segment_trans = part_data
             
             segment_name = segment_name.replace(" ", "-")
-            print("hierarchy:")
-            print(segment_hierarchy)
-            print(segment_name)
+            # print("hierarchy:")
+            # print(segment_hierarchy)
+            # print(segment_name)
 
             segment_location = part.Location().Transformation()
 
@@ -237,16 +258,28 @@ def separateRobotPartsFromStep(parts_data):
             segment_q_orientation = [segment_location.GetRotation().X(), segment_location.GetRotation().Y(), segment_location.GetRotation().Z(), segment_location.GetRotation().W()]
             #print(segment_location)
             #Parse joints data
-            if len(segment_hierarchy)>1: #filter out joints
+            if len(segment_hierarchy)>-1: #filter out joints, (unlocked hiarchi ? 1 ->  -1
+                urdf_detected = False
+                h_i = 0
+                for hiarchie_names in segment_hierarchy:
+                    if findOneVersionOfString(hiarchie_names,urdf_id_names) == 0:
+                        print("got to urdf" + str(h_i))
+                        urdf_detected = True
+                        break
+                    
+                    h_i = h_i + 1
 
-                if segment_hierarchy[1].find("URDF") == 0 or segment_hierarchy[1].find("urdf") == 0:  #check for urdf
-                    joint_name = segment_hierarchy[2] 
+                if urdf_detected: # findOneVersionOfString(segment_hierarchy[1],urdf_id_names) == 0:  #check for urdf
+                   
+                    joint_name = segment_hierarchy[h_i+1] 
 
-                    if joint_name.find("joint_")==0:
+                    if findOneVersionOfString(joint_name,joints_id_names) ==0:
 
                         connection_name = joint_name[6:]
                         connection_id_string = "_to_"
-                        ind = connection_name.find(connection_id_string)
+
+                        ind = findOneVersionOfString(connection_name, connection_word_id_names) 
+
                         if ind == -1: #this is for base joint
                             ind = connection_name.find("_")
                             parent_name = connection_name[0:ind]
@@ -255,7 +288,7 @@ def separateRobotPartsFromStep(parts_data):
                             parent_name = "" #"root joint doesnt have parent"
                         else:
                             parent_name = connection_name[0:ind]
-                            connection_name = connection_name[len(parent_name)+len(connection_id_string):]
+                            connection_name = connection_name[len(parent_name)+len(connection_id_string):]  #TODO this presumes all len(connection_id_string) is same
                             ind = connection_name.find("_")
                             child_name = connection_name[0:ind]
 
@@ -265,7 +298,9 @@ def separateRobotPartsFromStep(parts_data):
                         joint_data["name"] = parent_name + "_" + child_name
                         
                         for test_type in avalibel_joint_types: #iterate trough avalibel type and set correct one
-                            if segment_name.find(test_type)==0:
+                            
+
+                            if findOneVersionOfString(segment_name,joint_types_id_names[test_type])==0:
                                 joint_data["type"] = test_type
                                 break
 
@@ -442,6 +477,7 @@ def createMaterialsAndColors(robot_parts, robot_links, meshes_paths, root_link_n
 
         #FIND_LINK_name:
         current_name = part["name"] 
+        print("link name: " + current_name)
 
         if "link_" in current_name: #search for link definition in part name
             current_name = current_name[5:]
@@ -460,7 +496,7 @@ def createMaterialsAndColors(robot_parts, robot_links, meshes_paths, root_link_n
             link_meshes[current_name].append({"mesh_name":file_name,"mesh_material":color_name,"color_value":part["color"]})
             
         else:
-            print("error: no link name")
+            print("error: no link name: " + current_name)
 
         mesh_i = mesh_i + 1
 
@@ -697,12 +733,15 @@ if __name__ == '__main__':
 
     rospy.loginfo("SEPARATE ROBOT PARTS...")
     robot_parts, robot_joints, robot_links, root_link_name  = separateRobotPartsFromStep(parts_data)
+    print("JOINTS:")
+    for joint in robot_joints:
+        print(joint)
+
+    #sys.exit()
 
     meshes_path = package_path +"/meshes"
     if os.path.exists(meshes_path) == False:
         os.mkdir(meshes_path)
-
-
 
 
     mesh_paths = createSTLs(robot_parts, meshes_path)

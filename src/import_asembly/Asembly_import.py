@@ -67,7 +67,7 @@ def read_step_file_asembly(filename):  #(from OCC.Extend.DataExchange import rea
     color_tool = XCAFDoc_DocumentTool.ColorTool(doc.Main())
     #layer_tool = XCAFDoc_DocumentTool_LayerTool(doc.Main())
     #mat_tool = XCAFDoc_DocumentTool_MaterialTool(doc.Main())
-    rospy.loginfo("test43")
+    # rospy.loginfo("test43")
     step_reader = STEPCAFControl_Reader()
     step_reader.SetColorMode(True)
     step_reader.SetLayerMode(True)
@@ -76,7 +76,7 @@ def read_step_file_asembly(filename):  #(from OCC.Extend.DataExchange import rea
     step_reader.SetGDTMode(True)
 
     status = step_reader.ReadFile(filename)
-    rospy.loginfo("test432")
+    #rospy.loginfo("test432")
     if status == IFSelect_RetDone:
         step_reader.Transfer(doc)
 
@@ -183,14 +183,14 @@ def read_step_file_asembly(filename):  #(from OCC.Extend.DataExchange import rea
                 color_tool.SetInstanceColor(shape, 2, c)
                 color_set = True
                 n = c.Name(c.Red(), c.Green(), c.Blue())
-                print(
-                    "    instance color Name & RGB: ",
-                    c,
-                    n,
-                    c.Red(),
-                    c.Green(),
-                    c.Blue(),
-                )
+                # print(
+                #     "    instance color Name & RGB: ",
+                #     c,
+                #     n,
+                #     c.Red(),
+                #     c.Green(),
+                #     c.Blue(),
+                # )
 
             if not color_set:
                 if (
@@ -203,14 +203,14 @@ def read_step_file_asembly(filename):  #(from OCC.Extend.DataExchange import rea
                     color_tool.SetInstanceColor(shape, 2, c)
 
                     n = c.Name(c.Red(), c.Green(), c.Blue())
-                    print(
-                        "    shape color Name & RGB: ",
-                        c,
-                        n,
-                        c.Red(),
-                        c.Green(),
-                        c.Blue(),
-                    )
+                    # print(
+                    #     "    shape color Name & RGB: ",
+                    #     c,
+                    #     n,
+                    #     c.Red(),
+                    #     c.Green(),
+                    #     c.Blue(),
+                    # )
 
             shape_disp = BRepBuilderAPI_Transform(shape, loc.Transformation()).Shape()
             if shape_disp not in output_shapes:
@@ -232,14 +232,14 @@ def read_step_file_asembly(filename):  #(from OCC.Extend.DataExchange import rea
                     color_tool.SetInstanceColor(shape_sub, 2, c)
                     color_set = True
                     n = c.Name(c.Red(), c.Green(), c.Blue())
-                    print(
-                        "    instance color Name & RGB: ",
-                        c,
-                        n,
-                        c.Red(),
-                        c.Green(),
-                        c.Blue(),
-                    )
+                    # print(
+                    #     "    instance color Name & RGB: ",
+                    #     c,
+                    #     n,
+                    #     c.Red(),
+                    #     c.Green(),
+                    #     c.Blue(),
+                    # )
 
                 if not color_set:
                     if (
@@ -252,14 +252,14 @@ def read_step_file_asembly(filename):  #(from OCC.Extend.DataExchange import rea
                         color_tool.SetInstanceColor(shape, 2, c)
 
                         n = c.Name(c.Red(), c.Green(), c.Blue())
-                        print(
-                            "    shape color Name & RGB: ",
-                            c,
-                            n,
-                            c.Red(),
-                            c.Green(),
-                            c.Blue(),
-                        )
+                        # print(
+                        #     "    shape color Name & RGB: ",
+                        #     c,
+                        #     n,
+                        #     c.Red(),
+                        #     c.Green(),
+                        #     c.Blue(),
+                        # )
                 shape_to_disp = BRepBuilderAPI_Transform(
                     shape_sub, loc.Transformation()
                 ).Shape()
